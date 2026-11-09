@@ -25,6 +25,7 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
+          {/* Site navbar is hidden on auth pages (see navbar component) */}
           <SiteNavbar />
           {children}
         </ThemeProvider>

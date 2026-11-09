@@ -1,13 +1,14 @@
+
 "use client"
 
 import * as React from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { MenuIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/site/logo"
 import {
   Sheet,
   SheetContent,
@@ -21,25 +22,6 @@ const navLinks = [
   { href: "/pricing", label: "Pricing" },
 ]
 
-function Logo({ className }: { className?: string }) {
-  return (
-    <Link
-      href="/"
-      aria-label="HireLoop home"
-      className={cn("flex shrink-0 items-center outline-none focus-visible:ring-3 focus-visible:ring-ring/50", className)}
-    >
-      <Image
-        src="/hireloop-logo.png"
-        alt="HireLoop"
-        width={382}
-        height={102}
-        priority
-        className="h-9 w-auto sm:h-10 md:h-11"
-      />
-    </Link>
-  )
-}
-
 function NavLinks({ className }: { className?: string }) {
   const pathname = usePathname()
 
@@ -47,6 +29,7 @@ function NavLinks({ className }: { className?: string }) {
     <ul className={cn("flex items-center", className)}>
       {navLinks.map((link) => {
         const active = pathname === link.href
+
         return (
           <li key={link.href}>
             <Link
@@ -71,26 +54,27 @@ function NavLinks({ className }: { className?: string }) {
 function AuthActions({ className }: { className?: string }) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <Button
-        variant="ghost"
-        size="lg"
-        render={<Link href="/login" />}
-        className="h-10 rounded-xl px-4 text-[15px] font-semibold text-[#645bff] hover:bg-white/10 hover:text-[#7a71ff]"
+      <Link
+        href="/sign-in"
+        className="inline-flex h-10 items-center justify-center rounded-xl px-4 text-[15px] font-semibold text-[#645bff] transition-colors hover:bg-white/10 hover:text-[#7a71ff]"
       >
         Sign In
-      </Button>
-      <Button
-        size="lg"
-        render={<Link href="/register" />}
-        className="h-10 rounded-xl border border-[#090a15] bg-[#5c53fe] px-4 text-[15px] font-medium text-[#ededef] hover:bg-[#645bff] hover:text-[#ededef]"
+      </Link>
+
+      <Link
+        href="/sign-up"
+        className="inline-flex h-10 items-center justify-center rounded-xl border border-[#090a15] bg-[#5c53fe] px-4 text-[15px] font-medium text-[#ededef] transition-colors hover:bg-[#645bff]"
       >
         Get Started
-      </Button>
+      </Link>
     </div>
   )
 }
 
-function NavbarDivider({ className, ...props }: React.ComponentProps<"div">) {
+function NavbarDivider({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   return (
     <div
       aria-hidden="true"
@@ -101,15 +85,20 @@ function NavbarDivider({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 export function SiteNavbar() {
+  const pathname = usePathname()
   const [menuOpen, setMenuOpen] = React.useState(false)
-  const closeMenu = React.useCallback(() => setMenuOpen(false), [])
+
+  // Auth pages have their own logo, so hide the navbar
+  if (pathname === "/sign-in" || pathname === "/sign-up") {
+    return null
+  }
 
   return (
     <header className="sticky top-0 z-50">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Logo />
 
-        {/* Desktop pill */}
+        {/* Desktop navigation */}
         <nav
           aria-label="Main navigation"
           className="hidden items-center gap-5 rounded-2xl border border-white/10 bg-[#1a1a1f] p-2 pl-3 md:flex"
@@ -119,7 +108,7 @@ export function SiteNavbar() {
           <AuthActions />
         </nav>
 
-        {/* Mobile menu */}
+        {/* Mobile navigation */}
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger
             render={
@@ -133,6 +122,7 @@ export function SiteNavbar() {
           >
             <MenuIcon />
           </SheetTrigger>
+
           <SheetContent
             side="right"
             showCloseButton
@@ -140,10 +130,15 @@ export function SiteNavbar() {
           >
             <div className="flex items-center border-b border-white/10 p-4 pr-12">
               <Logo />
-              <SheetTitle className="sr-only">HireLoop navigation</SheetTitle>
+              <SheetTitle className="sr-only">
+                HireLoop navigation
+              </SheetTitle>
             </div>
+
             <NavLinks className="flex-col items-stretch gap-1 p-3 [&>li>a]:h-11 [&>li>a]:text-base" />
+
             <NavbarDivider className="mx-3 w-auto flex-1" />
+
             <AuthActions className="flex-col items-stretch gap-2 p-3 [&>a]:h-11 [&>a]:w-full" />
           </SheetContent>
         </Sheet>
