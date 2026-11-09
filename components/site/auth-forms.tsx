@@ -29,6 +29,7 @@ interface RegisterData {
   name: string
   email: string
   password: string
+  role: "seeker" | "recruiter"
   terms: boolean
   provider?: "github"
 }
@@ -146,7 +147,6 @@ function GitHubMark({ className }: { className?: string }) {
 
 // SIGN IN FORM
 
-
 export function SignInForm() {
   const [data, setData] = React.useState<LoginData>({
     email: "",
@@ -163,7 +163,6 @@ export function SignInForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-
     setLoading(true)
 
     try {
@@ -182,7 +181,6 @@ export function SignInForm() {
 
       console.log("Login successful:", loginResponse)
       window.location.href = "/"
-
     } catch (error) {
       console.error("Something went wrong:", error)
       alert("Something went wrong. Please try again.")
@@ -279,7 +277,6 @@ export function SignInForm() {
   )
 }
 
-
 // SIGN UP FORM
 
 export function RegisterForm() {
@@ -287,6 +284,7 @@ export function RegisterForm() {
     name: "",
     email: "",
     password: "",
+    role: "seeker",
     terms: false,
   })
 
@@ -313,18 +311,19 @@ export function RegisterForm() {
           name: data.name,
           email: data.email,
           password: data.password,
+          role: data.role,
           callbackURL: "/",
         })
 
       if (error) {
         console.log("Signup error:", error)
-        alert(error.message)
+        alert(error.message || "Signup failed. Please try again.")
         return
       }
 
       console.log("Signup successful:", signUpResponse)
       alert("Account created successfully!")
-
+      window.location.href = "/"
     } catch (error) {
       console.error("Something went wrong:", error)
       alert("Something went wrong. Please try again.")
@@ -387,6 +386,31 @@ export function RegisterForm() {
                 value={data.email}
                 onChange={(e) => handleField("email")(e.target.value)}
               />
+            </div>
+
+            {/* Role Selection */}
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="role"
+                className="text-sm font-medium text-[#ededef]/80"
+              >
+                I want to join as
+              </label>
+
+              <select
+                id="role"
+                name="role"
+                value={data.role}
+                onChange={(e) =>
+                  handleField("role")(
+                    e.target.value as "seeker" | "recruiter"
+                  )
+                }
+                className="h-11 w-full rounded-xl border border-white/10 bg-[#24242b] px-3.5 text-[15px] text-[#ededef] outline-none focus:border-[#5c53fe]"
+              >
+                <option value="seeker">Job Seeker</option>
+                <option value="recruiter">Recruiter</option>
+              </select>
             </div>
 
             <PasswordInputWithToggle
