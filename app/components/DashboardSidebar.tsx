@@ -20,13 +20,12 @@ import {
   Briefcase,
   Bookmark,
   FileText,
+  CreditCard,
   Settings,
   Users,
-  CreditCard,
-  PlusCircle,
-  BarChart,
+  Building2,
   LogOut,
-  UserRound,
+  PlusCircle,
 } from "lucide-react";
 
 type UserRole = "seeker" | "recruiter" | "admin";
@@ -42,79 +41,81 @@ const menuItemsByRole = {
   ],
 
   recruiter: [
-    { title: "Dashboard", url: "/dashboard/recruiter", icon: LayoutDashboard },
-    { title: "Post a Job", url: "/dashboard/recruiter/post-job", icon: PlusCircle },
-    { title: "My Jobs", url: "/dashboard/recruiter/jobs", icon: Briefcase },
-    { title: "Applicants", url: "/dashboard/recruiter/applicants", icon: Users },
-    { title: "Billing", url: "/dashboard/recruiter/billing", icon: CreditCard },
-    { title: "Settings", url: "/dashboard/recruiter/settings", icon: Settings },
-  ],
+  {
+    title: "Dashboard",
+    url: "/dashboard/recruiter",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Manage Jobs",
+    url: "/dashboard/recruiter/jobs",
+    icon: Briefcase,
+  },
+  {
+  title: "Add Jobs",
+  url: "/dashboard/recruiter/jobs/new",
+  icon: PlusCircle,
+},
+  {
+    title: "Applications",
+    url: "/dashboard/recruiter/applications",
+    icon: FileText,
+  },
+  {
+    title: "Settings",
+    url: "/dashboard/recruiter/settings",
+    icon: Settings,
+  },
+],
 
   admin: [
     { title: "Dashboard", url: "/dashboard/admin", icon: LayoutDashboard },
-    { title: "Manage Users", url: "/dashboard/admin/users", icon: Users },
-    { title: "Manage Jobs", url: "/dashboard/admin/jobs", icon: Briefcase },
-    { title: "Applications", url: "/dashboard/admin/applications", icon: FileText },
-    { title: "Reports", url: "/dashboard/admin/reports", icon: BarChart },
+    { title: "Users", url: "/dashboard/admin/users", icon: Users },
+    { title: "Companies", url: "/dashboard/admin/companies", icon: Building2 },
+    { title: "Jobs", url: "/dashboard/admin/jobs", icon: Briefcase },
+    { title: "Payments", url: "/dashboard/admin/payments", icon: CreditCard },
     { title: "Settings", url: "/dashboard/admin/settings", icon: Settings },
   ],
 };
 
 interface DashboardSidebarProps {
-  role?: string;
+  role?: UserRole;
 }
 
 export function DashboardSidebar({ role }: DashboardSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { data: session } = authClient.useSession();
-
-  const currentRole = role as UserRole;
-  const menuItems = menuItemsByRole[currentRole] || [];
+  const menuItems = role ? menuItemsByRole[role] : [];
 
   const portalName =
     role === "seeker"
       ? "Seeker Portal"
       : role === "recruiter"
-      ? "Recruiter Portal"
-      : role === "admin"
-      ? "Admin Portal"
-      : "Dashboard";
-
-  const buttonText =
-    role === "seeker"
-      ? "Post Resume"
-      : role === "recruiter"
-      ? "Post a Job"
-      : "Manage Users";
-
-  const buttonLink =
-    role === "seeker"
-      ? "/dashboard/seeker/resume"
-      : role === "recruiter"
-      ? "/dashboard/recruiter/post-job"
-      : "/dashboard/admin/users";
+        ? "Recruiter Portal"
+        : role === "admin"
+          ? "Admin Portal"
+          : "Dashboard";
 
   const handleLogout = async () => {
     await authClient.signOut();
-    router.push("/sign-in");
+    router.replace("/sign-in");
+    router.refresh();
   };
 
   return (
     <Sidebar className="border-r border-zinc-800 bg-[#09090b] text-white">
 
-      {/* Logo */}
+      {/* Logo and Profile */}
       <SidebarHeader className="px-3 pt-4 pb-3">
         <h1 className="text-2xl font-extrabold tracking-tight">
           <span className="text-sky-400">Hire</span>
           <span className="text-orange-500">Loop</span>
         </h1>
 
-        {/* Profile Card */}
         <div className="mt-3 flex items-center gap-3 rounded-lg border border-zinc-800 bg-[#151519] p-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-700">
-            <UserRound className="h-5 w-5 text-white" />
+            <Users className="h-5 w-5 text-white" />
           </div>
 
           <div className="min-w-0">
@@ -134,7 +135,10 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
           <SidebarMenu className="gap-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.url;
+
+              const isActive =
+                pathname === item.url ||
+                pathname.startsWith(item.url + "/");
 
               return (
                 <SidebarMenuItem key={item.title}>
@@ -158,12 +162,14 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
 
       {/* Bottom Section */}
       <SidebarFooter className="px-3 pb-3">
-        <button
-          onClick={() => router.push(buttonLink)}
-          className="w-full rounded-md bg-white py-2.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
-        >
-          {buttonText}
-        </button>
+        {role === "seeker" && (
+          <button
+            onClick={() => router.push("/dashboard/seeker/resume")}
+            className="w-full rounded-md bg-white py-2.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
+          >
+            Post Resume
+          </button>
+        )}
 
         <SidebarMenu className="mt-2">
           <SidebarMenuItem>
@@ -177,7 +183,6 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-
     </Sidebar>
   );
 }
