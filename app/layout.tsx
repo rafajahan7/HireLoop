@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SiteNavbar } from "@/components/site/navbar"
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'})
 
@@ -27,6 +28,7 @@ export default function RootLayout({
         <ThemeProvider>
           {/* Site navbar is hidden on auth pages (see navbar component) */}
           <SiteNavbar />
+          <Toaster position="top-right" richColors />
           {children}
         </ThemeProvider>
       </body>
